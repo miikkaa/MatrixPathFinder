@@ -18,16 +18,14 @@ public class Matrix<T extends MatrixElement> {
         return size;
     }
 
-    public int getNumberOfElements() {
-        return size * size;
-    }
-
     public T getElementAt(Coordinate coordinate) {
+        final String outOfBoundsMessage = "Invalid %s-coordinate, expecting a value within the <0-%s> range!";
+
         if (validateIndex(coordinate.getX())) {
-            throw new RuntimeException(String.format("Invalid X-coordinate, expecting a value within the <0-%s> range!", this.size));
+            throw new IndexOutOfBoundsException(String.format(outOfBoundsMessage, "X", this.size));
         }
         if (validateIndex(coordinate.getY())) {
-            throw new RuntimeException(String.format("Invalid Y-coordinate, expecting a value within the <0-%s> range!", this.size));
+            throw new IndexOutOfBoundsException(String.format(outOfBoundsMessage, "Y", this.size));
         }
         return elements[coordinate.getX()][coordinate.getY()];
     }

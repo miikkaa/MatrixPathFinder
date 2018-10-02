@@ -1,8 +1,8 @@
 package se.giraff.config;
 
 public final class LabyrinthConfig {
-    public final static int DEFAULT_SIZE = 5;
-    public final static int MIN_ALLOWED_SIZE = 2;
+    public final static int DEFAULT_MATRIX_SIZE = 5;
+    public final static int MIN_ALLOWED_MATRIX_SIZE = 2;
 
     public final static int DEFAULT_START_COORDINATE_X = 0;
     public final static int DEFAULT_START_COORDINATE_Y = 0;

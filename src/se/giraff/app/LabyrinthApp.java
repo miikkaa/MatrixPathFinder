@@ -1,9 +1,9 @@
 package se.giraff.app;
 
-import se.giraff.matrix.helpers.MatrixPathfinder;
-import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.helpers.MatrixFactory;
+import se.giraff.matrix.helpers.MatrixPathfinder;
 import se.giraff.matrix.primitives.Coordinate;
+import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.Path;
 
 import java.util.Collection;
@@ -16,8 +16,8 @@ public class LabyrinthApp {
     private Matrix matrix;
 
     public LabyrinthApp(int size) {
-        if (size < MIN_ALLOWED_SIZE) {
-            throw new RuntimeException(String.format("The provided size is below the minimum allowed size <%s>!", MIN_ALLOWED_SIZE));
+        if (size < MIN_ALLOWED_MATRIX_SIZE) {
+            throw new RuntimeException(String.format("The provided size is below the minimum allowed size <%s>!", MIN_ALLOWED_MATRIX_SIZE));
         }
 
         this.size = size;
@@ -39,10 +39,10 @@ public class LabyrinthApp {
 //        System.out.println("|   23      24      33                  |");
 //        System.out.println("|   4   |   4   |   9   |       |       |");
 //        System.out.println("|                                       |");
-//        System.out.println("|   -   +   -   +   -   +   -   +   -   |");
-//        System.out.println("|   30      27                          |");
-//        System.out.println("|   7   |   3   |       |       |       |");
-//        System.out.println("|                                       |");
+//        System.out.println("|   -   +   -   +-------+   -   +   -   |");
+//        System.out.println("|   30      27  |       |               |");
+//        System.out.println("|   7   |   3   |   1   |       |       |");
+//        System.out.println("|               |       |               |");
 //        System.out.println("+-------+-------+-------+-------+-------+");
     }
 

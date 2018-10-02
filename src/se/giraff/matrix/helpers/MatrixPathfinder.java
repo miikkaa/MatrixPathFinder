@@ -1,150 +1,122 @@
 package se.giraff.matrix.helpers;
 
-import se.giraff.matrix.primitives.*;
+import se.giraff.matrix.primitives.Coordinate;
+import se.giraff.matrix.primitives.Matrix;
+import se.giraff.matrix.primitives.MatrixElementWithPath;
+import se.giraff.matrix.primitives.Path;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MatrixPathfinder {
 
-    private Matrix matrix;
+    private Matrix originalMatrix;
     private Coordinate from;
     private Coordinate to;
 
-    private MatrixElement fromElement;
-    private MatrixElement toElement;
-
-    private Collection<Path> paths;
-
-    private MatrixPathfinder(Matrix matrix, Coordinate from, Coordinate to) {
-        this.matrix = matrix;
+    private MatrixPathfinder(Matrix originalMatrix, Coordinate from, Coordinate to) {
+        this.originalMatrix = originalMatrix;
         this.from = from;
         this.to = to;
-        // this.paths.add(this.matrix.getElementAt(from));
-
     }
 
-    private Matrix<PathInterimElement> getHelperMatrix() {
-        PathInterimElement[][] interimMatrix = new PathInterimElement[matrix.getSize()][matrix.getSize()];
+    public Collection<Path> findPaths() {
+        Matrix<MatrixElementWithPath> helperMatrix = getMatrixWithPaths();
+        MatrixElementWithPath head = helperMatrix.getElementAt(from);
+        MatrixElementWithPath tail = helperMatrix.getElementAt(to);
 
-        for (int i = 0; i < matrix.getSize(); i++) {
-            for (int j = 0; j < matrix.getSize(); j++) {
+        head.setOpeningPath();
+
+        Set<MatrixElementWithPath> elementsWithPaths = new HashSet<>();
+        elementsWithPaths.add(head);
+
+        while (!tail.isVisited()) {
+            // Next element to visit is the one having the lowest interim weight.
+            MatrixElementWithPath currentElement = elementsWithPaths.stream()
+                    .min(Comparator.comparingInt(MatrixElementWithPath::getInterimWeight))
+                    .orElseThrow(() -> new RuntimeException("Could not find the next element to visit!"));
+
+            Collection<MatrixElementWithPath> unvisitedNeighbours = getNeighbours(helperMatrix, currentElement).stream()
+                    .filter(element -> !element.isVisited())
+                    .collect(Collectors.toSet());
+
+            unvisitedNeighbours.forEach(neighbour -> {
+                int result = compareWeightedDistance(neighbour, currentElement);
+
+                if (result > 0) {
+                    neighbour.setPaths(currentElement);
+
+                } else if (result == 0) {
+                    neighbour.addToPaths(currentElement);
+                }
+
+                elementsWithPaths.add(neighbour);
+            });
+
+            currentElement.setVisited();
+            elementsWithPaths.remove(currentElement);
+        }
+
+        return tail.getPaths();
+    }
+
+    private Matrix<MatrixElementWithPath> getMatrixWithPaths() {
+        int size = originalMatrix.getSize();
+        MatrixElementWithPath[][] interimMatrix = new MatrixElementWithPath[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 Coordinate coordinate = Coordinate.from(i, j);
 
-                PathInterimElement interimElement = new PathInterimElement(matrix.getElementAt(coordinate), coordinate);
+                MatrixElementWithPath interimElement = new MatrixElementWithPath(originalMatrix.getElementAt(coordinate), coordinate);
                 interimMatrix[i][j] = interimElement;
             }
         }
 
-        return new Matrix<>(matrix.getSize(), interimMatrix);
+        return new Matrix<>(size, interimMatrix);
     }
 
-    public Collection<Path> findPaths() {
-        fromElement = matrix.getElementAt(from);
-        toElement = matrix.getElementAt(to);
+    private static int compareWeightedDistance(MatrixElementWithPath target, MatrixElementWithPath source) {
+        int currentWeight = target.getInterimWeight();
+        int newWeight = source.getInterimWeight() + target.getWeight();
 
-        paths = new HashSet<>();
-
-        Set<PathInterimElement> weighted = new HashSet<>();
-//        Set<PathInterimElement> visited = new HashSet<>();
-//        weighted.add(head.getCoordinate());
-//        head.setInitialPath();
-//        PathInterimElement current = head;
-        Matrix<PathInterimElement> tempMatrix = getHelperMatrix();
-        PathInterimElement head = tempMatrix.getElementAt(from);
-        PathInterimElement tail = tempMatrix.getElementAt(to);
-        PathInterimElement current = head;
-        current.setPath(new Path(from));
-        weighted.add(current);
-
-        while (true) {
-
-            System.out.println("Current: " + current);
-            PathInterimElement finalCurrent = current;
-            Collection<PathInterimElement> neighbours = getNeighbours(tempMatrix, finalCurrent);
-            System.out.println("Neighbours: " + neighbours);
-            System.out.println("Not visited neighbours: " + neighbours.stream().filter(e -> !e.isVisited()).collect(Collectors.toSet()));
-            neighbours.stream()
-                    .filter(e -> !e.isVisited())
-                    .forEach(e -> {
-                        if (!e.hasInterimWeight()) {
-                            e.setPaths(finalCurrent);
-                            weighted.add(e);
-                            System.out.println("New IW: " + e.getInterimWeight() + " @ " + e.getCoordinate());
-                        } else {
-                            int newInterimWeight = finalCurrent.getInterimWeight() + e.getWeight();
-                            if (newInterimWeight < e.getInterimWeight()) {
-                                e.setPaths(finalCurrent);
-                                System.out.println("REPLACE IW: " + newInterimWeight + " @ " + e.getCoordinate());
-                            } else if (newInterimWeight == e.getInterimWeight()) {
-                                e.addToPaths(finalCurrent);
-                                System.out.println("UPDATE IW: " + newInterimWeight + " @ " + e.getCoordinate());
-                            } else {
-                                System.out.println("KEEP IW: (" + e.getInterimWeight() + " > " + newInterimWeight + ")" + " @ " + e.getCoordinate());
-                            }
-                        }
-                    });
-
-            finalCurrent.markAsVisited();
-
-            if (tail.isVisited()) {
-                break;
-            }
-
-            // Get next current
-            current = weighted.stream()
-                    .filter(el -> !el.isVisited())
-                    .min(Comparator.comparingInt(PathInterimElement::getInterimWeight))
-                    .orElseThrow(() -> new RuntimeException("Could not find the next element to visit!"));
+        if (currentWeight < newWeight) {
+            return -1;
+        } else if (currentWeight > newWeight) {
+            return 1;
         }
-
-        System.out.println("Paths:");
-        System.out.println(tail.getPaths());
-//
-//
-//        for (int i = 0; i < matrix.getSize(); i++) {
-//            for (int j = 0; j < matrix.getSize(); j++) {
-//                Coordinate coordinate = Coordinate.from(i, j);
-//                interimMatrix[i][j]
-//            }
-//        }
-//        Set<PathInterimElement> interimElements = elementsAsList.stream()
-//                .map(PathInterimElement::new)
-//                .collect(Collectors.toSet());
-//
-//        PathInterimElement head = interimElements.stream()
-//                .filter(element -> element);
-//
-//        return paths;
-        throw new RuntimeException("Not implemented!");
+        return 0;
     }
 
-    private Set<PathInterimElement> getNeighbours(Matrix<PathInterimElement> tempMatrix, PathInterimElement current) {
-        Set<PathInterimElement> neighbours = new HashSet<>();
+    private static Set<MatrixElementWithPath> getNeighbours(Matrix<MatrixElementWithPath> matrix, MatrixElementWithPath current) {
+        Set<MatrixElementWithPath> neighbours = new HashSet<>();
         Coordinate coordinate = current.getCoordinate();
 
         // Left
         if (coordinate.getX() > 0) {
             Coordinate left = Coordinate.from(coordinate.getX() - 1, coordinate.getY());
-            neighbours.add(tempMatrix.getElementAt(left));
+            neighbours.add(matrix.getElementAt(left));
         }
 
         // Right
-        if (coordinate.getX() < tempMatrix.getSize() - 1) {
+        if (coordinate.getX() < matrix.getSize() - 1) {
             Coordinate right = Coordinate.from(coordinate.getX() + 1, coordinate.getY());
-            neighbours.add(tempMatrix.getElementAt(right));
+            neighbours.add(matrix.getElementAt(right));
         }
 
         // Above
         if (coordinate.getY() > 0) {
             Coordinate above = Coordinate.from(coordinate.getX(), coordinate.getY() - 1);
-            neighbours.add(tempMatrix.getElementAt(above));
+            neighbours.add(matrix.getElementAt(above));
         }
 
         // Below
-        if (coordinate.getY() < tempMatrix.getSize() - 1) {
+        if (coordinate.getY() < matrix.getSize() - 1) {
             Coordinate below = Coordinate.from(coordinate.getX(), coordinate.getY() + 1);
-            neighbours.add(tempMatrix.getElementAt(below));
+            neighbours.add(matrix.getElementAt(below));
         }
 
         return neighbours;
@@ -152,7 +124,7 @@ public class MatrixPathfinder {
 
     public static class Builder {
 
-        private Matrix matrix;
+        private Matrix originalMatrix;
         private Coordinate from;
         private Coordinate to;
 
@@ -162,8 +134,8 @@ public class MatrixPathfinder {
             return new Builder();
         }
 
-        public Builder matrix(Matrix matrix) {
-            this.matrix = matrix;
+        public Builder matrix(Matrix originalMatrix) {
+            this.originalMatrix = originalMatrix;
             return this;
         }
 
@@ -179,19 +151,19 @@ public class MatrixPathfinder {
 
         public MatrixPathfinder build() {
             validateParameters();
-            return new MatrixPathfinder(matrix, from, to);
+            return new MatrixPathfinder(originalMatrix, from, to);
         }
 
         private void validateParameters() {
-            if (matrix == null) {
-                throw new RuntimeException("<matrix> is a mandatory parameter!");
+            if (originalMatrix == null) {
+                throw new RuntimeException("<originalMatrix> is a mandatory parameter!");
             }
 
             if (from == null) {
                 throw new RuntimeException("<from> is a mandatory parameter!");
             }
 
-            if (matrix.hasElementAt(from)) {
+            if (originalMatrix.hasElementAt(from)) {
                 throw new RuntimeException("<from> coordinate is out of bounds!");
             }
 
@@ -199,11 +171,9 @@ public class MatrixPathfinder {
                 throw new RuntimeException("<to> is a mandatory parameter!");
             }
 
-            if (matrix.hasElementAt(to)) {
+            if (originalMatrix.hasElementAt(to)) {
                 throw new RuntimeException("<to> coordinate is out of bounds!");
             }
         }
-
     }
-
 }
