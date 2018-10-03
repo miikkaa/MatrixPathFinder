@@ -9,9 +9,12 @@ public class Matrix<T extends MatrixElement> {
     private final int size;
     private final T[][] elements;
 
-    public Matrix(int size, T[][] elements) {
-        this.size = size;
+    public Matrix(T[][] elements) {
         this.elements = elements;
+        this.size = elements.length;
+
+        assert elements[0].length == this.size;
+        assert elements[this.size - 1].length == this.size;
     }
 
     public int getSize() {
@@ -21,21 +24,21 @@ public class Matrix<T extends MatrixElement> {
     public T getElementAt(Coordinate coordinate) {
         final String outOfBoundsMessage = "Invalid %s-coordinate, expecting a value within the <0-%s> range!";
 
-        if (validateIndex(coordinate.getX())) {
+        if (!isValidIndex(coordinate.getX())) {
             throw new IndexOutOfBoundsException(String.format(outOfBoundsMessage, "X", this.size));
         }
-        if (validateIndex(coordinate.getY())) {
+        if (!isValidIndex(coordinate.getY())) {
             throw new IndexOutOfBoundsException(String.format(outOfBoundsMessage, "Y", this.size));
         }
         return elements[coordinate.getX()][coordinate.getY()];
     }
 
     public boolean hasElementAt(Coordinate coordinate) {
-        return validateIndex(coordinate.getX()) &&
-                validateIndex(coordinate.getY());
+        return isValidIndex(coordinate.getX()) &&
+                isValidIndex(coordinate.getY());
     }
 
-    private boolean validateIndex(int index) {
-        return index < 0 || index >= size;
+    private boolean isValidIndex(int index) {
+        return index >= 0 || index < size;
     }
 }

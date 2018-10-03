@@ -9,12 +9,12 @@ import java.util.Random;
 public class MatrixFactory {
 
     public static Matrix createMatrixWithElements(int size, MatrixElement[][] elements) {
-        return new Matrix<>(size, elements);
+        return new Matrix<>(elements);
     }
 
     public static Matrix createMatrixWithElements(int size, int minWeight, int maxWeight) {
-        //MatrixElement[][] matrixElements = generateMatrixElements(size, minWeight, maxWeight);
-        MatrixElement[][] matrixElements = new MatrixElement[][]{
+        MatrixElement[][] matrixElements = generateMatrixElements(size, minWeight, maxWeight);
+        MatrixElement[][] matrixElements2 = new MatrixElement[][]{
                 new MatrixElement[]{
                         new MatrixElement(1),
                         new MatrixElement(3),
@@ -51,7 +51,7 @@ public class MatrixFactory {
                         new MatrixElement(3),
                 },
         };
-        return new Matrix<>(size, matrixElements);
+        return new Matrix<>(matrixElements);
     }
 
     private static MatrixElement[][] generateMatrixElements(int size, int minWeight, int maxWeight) {

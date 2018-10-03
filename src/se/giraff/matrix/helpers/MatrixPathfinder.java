@@ -76,7 +76,7 @@ public class MatrixPathfinder {
             }
         }
 
-        return new Matrix<>(size, interimMatrix);
+        return new Matrix<>(interimMatrix);
     }
 
     private static int compareWeightedDistance(MatrixElementWithPath target, MatrixElementWithPath source) {
@@ -124,7 +124,7 @@ public class MatrixPathfinder {
 
     public static class Builder {
 
-        private Matrix originalMatrix;
+        private Matrix matrix;
         private Coordinate from;
         private Coordinate to;
 
@@ -134,8 +134,8 @@ public class MatrixPathfinder {
             return new Builder();
         }
 
-        public Builder matrix(Matrix originalMatrix) {
-            this.originalMatrix = originalMatrix;
+        public Builder matrix(Matrix matrix) {
+            this.matrix = matrix;
             return this;
         }
 
@@ -151,28 +151,28 @@ public class MatrixPathfinder {
 
         public MatrixPathfinder build() {
             validateParameters();
-            return new MatrixPathfinder(originalMatrix, from, to);
+            return new MatrixPathfinder(matrix, from, to);
         }
 
         private void validateParameters() {
-            if (originalMatrix == null) {
-                throw new RuntimeException("<originalMatrix> is a mandatory parameter!");
+            if (matrix == null) {
+                throw new MatrixBuilderValidationError("<matrix> is a mandatory parameter!");
             }
 
             if (from == null) {
-                throw new RuntimeException("<from> is a mandatory parameter!");
+                throw new MatrixBuilderValidationError("<from> is a mandatory parameter!");
             }
 
-            if (originalMatrix.hasElementAt(from)) {
-                throw new RuntimeException("<from> coordinate is out of bounds!");
+            if (!matrix.hasElementAt(from)) {
+                throw new MatrixBuilderValidationError("<from> coordinate is out of bounds!");
             }
 
             if (to == null) {
-                throw new RuntimeException("<to> is a mandatory parameter!");
+                throw new MatrixBuilderValidationError("<to> is a mandatory parameter!");
             }
 
-            if (originalMatrix.hasElementAt(to)) {
-                throw new RuntimeException("<to> coordinate is out of bounds!");
+            if (!matrix.hasElementAt(to)) {
+                throw new MatrixBuilderValidationError("<to> coordinate is out of bounds!");
             }
         }
     }
