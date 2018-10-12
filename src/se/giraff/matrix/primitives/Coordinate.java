@@ -8,6 +8,9 @@ public class Coordinate {
     private int y;
 
     public static Coordinate from(int x, int y) {
+        assert x >= 0;
+        assert y >= 0;
+
         return new Coordinate(x, y);
     }
 

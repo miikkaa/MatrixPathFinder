@@ -37,7 +37,7 @@ public class MatrixElementWithPath extends MatrixElement {
         return paths;
     }
 
-    public void setOpeningPath() {
+    public void markAsInitPathElement() {
         paths = new HashSet<>();
         paths.add(new Path(coordinate));
         interimWeight = getWeight();

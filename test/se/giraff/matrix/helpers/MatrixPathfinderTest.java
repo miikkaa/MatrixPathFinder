@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.MatrixElement;
+import se.giraff.matrix.primitives.Path;
+
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,34 +19,39 @@ class MatrixPathfinderTest {
         final Matrix<MatrixElement> testMatrix = new Matrix<>(MatrixTestHelper.DEFAULT_MATRIX);
         final Coordinate testCoordinate = Coordinate.from(1, 1);
 
-        exception = assertThrows(MatrixBuilderValidationError.class, () -> MatrixPathfinder.Builder.create()
-                .build());
+        exception = assertThrows(MatrixBuilderValidationException.class,
+                () -> MatrixPathfinder.Builder.create().build());
         assertTrue(exception.getMessage().contains("mandatory"));
 
-        exception = assertThrows(MatrixBuilderValidationError.class, () -> MatrixPathfinder.Builder.create()
-                .matrix(testMatrix)
-                .build());
+        // Missing TO and FROM-coordinates
+        exception = assertThrows(MatrixBuilderValidationException.class,
+                () -> MatrixPathfinder.Builder.create()
+                        .matrix(testMatrix)
+                        .build());
         assertTrue(exception.getMessage().contains("mandatory"));
 
-        exception = assertThrows(MatrixBuilderValidationError.class, () -> MatrixPathfinder.Builder.create()
-                .matrix(testMatrix)
-                .from(testCoordinate)
-                .build());
+        // Missing TO-coordinate
+        exception = assertThrows(MatrixBuilderValidationException.class,
+                () -> MatrixPathfinder.Builder.create()
+                        .matrix(testMatrix)
+                        .from(testCoordinate)
+                        .build());
         assertTrue(exception.getMessage().contains("mandatory"));
 
-        exception = assertThrows(MatrixBuilderValidationError.class, () -> MatrixPathfinder.Builder.create()
-                .matrix(testMatrix)
-                .to(testCoordinate)
-                .build());
+        // Missing FROM-coordinate
+        exception = assertThrows(MatrixBuilderValidationException.class,
+                () -> MatrixPathfinder.Builder.create()
+                        .matrix(testMatrix)
+                        .to(testCoordinate)
+                        .build());
         assertTrue(exception.getMessage().contains("mandatory"));
 
-        //
+        // Both TO and FROM-coordinates are present
         assertDoesNotThrow(() -> MatrixPathfinder.Builder.create()
                 .matrix(testMatrix)
                 .from(testCoordinate)
                 .to(testCoordinate)
-                .build()
-        );
+                .build());
     }
 
     @Test
@@ -54,26 +62,41 @@ class MatrixPathfinderTest {
         final Coordinate testCoordinate = Coordinate.from(0, 0);
         final Coordinate testCoordinateOutOfBounds = Coordinate.from(testMatrix.getSize(), 0);
 
-        exception = assertThrows(MatrixBuilderValidationError.class, () -> MatrixPathfinder.Builder.create()
-                .matrix(testMatrix)
-                .from(testCoordinate)
-                .to(testCoordinateOutOfBounds)
-                .build());
+        exception = assertThrows(MatrixBuilderValidationException.class,
+                () -> MatrixPathfinder.Builder.create()
+                        .matrix(testMatrix)
+                        .from(testCoordinate)
+                        .to(testCoordinateOutOfBounds)
+                        .build());
         assertTrue(exception.getMessage().contains("bounds"));
 
-        exception = assertThrows(MatrixBuilderValidationError.class, () -> MatrixPathfinder.Builder.create()
-                .matrix(testMatrix)
-                .from(testCoordinateOutOfBounds)
-                .to(testCoordinate)
-                .build());
+        exception = assertThrows(MatrixBuilderValidationException.class,
+                () -> MatrixPathfinder.Builder.create()
+                        .matrix(testMatrix)
+                        .from(testCoordinateOutOfBounds)
+                        .to(testCoordinate)
+                        .build());
         assertTrue(exception.getMessage().contains("bounds"));
     }
 
-//    @Test
-//    void findPaths() {
-//        Matrix<MatrixElement> matrix = new Matrix<>(MatrixTestHelper.DEFAULT_MATRIX.length, MatrixTestHelper.DEFAULT_MATRIX);
-//        MatrixPathfinder.Builder.create()
-//                .matrix(new Matrix<>(1, null))
-//                .build();
-//    }
+    @Test
+    void testFindPaths() {
+        final Matrix<MatrixElement> testMatrix = new Matrix<>(MatrixTestHelper.DEFAULT_MATRIX);
+        final Coordinate testFromCoordinate = Coordinate.from(0, 0);
+        final Coordinate testToCoordinate = Coordinate.from(testMatrix.getSize() - 1, testMatrix.getSize() - 1);
+        Collection<Path> paths = MatrixPathfinder.Builder.create()
+                .matrix(testMatrix)
+                .from(testFromCoordinate)
+                .to(testToCoordinate)
+                .build()
+                .findPaths();
+
+        assertContainsInAnyOrder(MatrixTestHelper.DEFAULT_MATRIX_PATHS, paths);
+    }
+
+    private void assertContainsInAnyOrder(Collection<?> actual, Collection<?> expected) {
+        actual.forEach(item -> {
+            assert expected.contains(item);
+        });
+    }
 }

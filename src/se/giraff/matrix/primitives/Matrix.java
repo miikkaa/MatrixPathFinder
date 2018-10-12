@@ -10,11 +10,10 @@ public class Matrix<T extends MatrixElement> {
     private final T[][] elements;
 
     public Matrix(T[][] elements) {
+        assertSquareMatrix(elements);
+
         this.elements = elements;
         this.size = elements.length;
-
-        assert elements[0].length == this.size;
-        assert elements[this.size - 1].length == this.size;
     }
 
     public int getSize() {
@@ -40,5 +39,15 @@ public class Matrix<T extends MatrixElement> {
 
     private boolean isValidIndex(int index) {
         return index >= 0 || index < size;
+    }
+
+    private void assertSquareMatrix(T[][] elements) {
+        assert elements != null;
+        assert elements.length > 0;
+
+        int size = elements.length;
+        for (T[] element : elements) {
+            assert element.length == size;
+        }
     }
 }

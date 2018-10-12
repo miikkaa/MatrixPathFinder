@@ -1,6 +1,12 @@
 package se.giraff.matrix.helpers;
 
+import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.MatrixElement;
+import se.giraff.matrix.primitives.Path;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 
 public class MatrixTestHelper {
 
@@ -41,5 +47,29 @@ public class MatrixTestHelper {
                     new MatrixElement(3),
             },
     };
+
+    public final static Collection<Path> DEFAULT_MATRIX_PATHS = new ArrayList<>(Arrays.asList(
+            new Path(Coordinate.from(0, 0))
+                    .addCoordinate(Coordinate.from(0, 1))
+                    .addCoordinate(Coordinate.from(0, 2))
+                    .addCoordinate(Coordinate.from(1, 2))
+                    .addCoordinate(Coordinate.from(2, 2))
+                    .addCoordinate(Coordinate.from(2, 3))
+                    .addCoordinate(Coordinate.from(3, 3))
+                    .addCoordinate(Coordinate.from(3, 4))
+                    .addCoordinate(Coordinate.from(4, 4)),
+
+            new Path(Coordinate.from(0, 0))
+                    .addCoordinate(Coordinate.from(0, 1))
+                    .addCoordinate(Coordinate.from(0, 2))
+                    .addCoordinate(Coordinate.from(1, 2))
+                    .addCoordinate(Coordinate.from(2, 2))
+                    .addCoordinate(Coordinate.from(2, 1))
+                    .addCoordinate(Coordinate.from(3, 1))
+                    .addCoordinate(Coordinate.from(4, 1))
+                    .addCoordinate(Coordinate.from(4, 2))
+                    .addCoordinate(Coordinate.from(4, 3))
+                    .addCoordinate(Coordinate.from(4, 4))
+    ));
 
 }

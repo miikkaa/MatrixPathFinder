@@ -2,6 +2,7 @@ package se.giraff.matrix.primitives;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Path {
@@ -17,8 +18,13 @@ public class Path {
         this.coordinates = new LinkedHashSet<>(other.coordinates);
     }
 
-    public void addCoordinate(Coordinate coordinate) {
+    public Path addCoordinate(Coordinate coordinate) {
         coordinates.add(coordinate);
+        return this;
+    }
+
+    public boolean contains(Coordinate coordinate) {
+        return coordinates.contains(coordinate);
     }
 
     public Path copy() {
@@ -29,5 +35,19 @@ public class Path {
         return coordinates.stream()
                 .map(Coordinate::toString)
                 .collect(Collectors.joining(", "));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Path path = (Path) o;
+        if (Objects.equals(coordinates, path.coordinates)) return true;
+        return path.coordinates.containsAll(coordinates);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(coordinates);
     }
 }

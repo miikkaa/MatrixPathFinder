@@ -22,32 +22,10 @@ public class LabyrinthApp {
 
         this.size = size;
         this.matrix = MatrixFactory.createMatrixWithElements(this.size, DEFAULT_LOWEST_ELEMENT_WEIGHT, DEFAULT_HIGHEST_ELEMENT_WEIGHT);
-
-//        System.out.println("+-------+-------+-------+-------+-------+");
-//        System.out.println("|                                       |");
-//        System.out.println("|   9   |16 7   |19 3   |21 2   |27 6   |");
-//        System.out.println("|                                       |");
-//        System.out.println("|   -   +   -   +   -   +   -   +   -   |");
-//        System.out.println("|   12      21      23      24          |");
-//        System.out.println("|   3   |   9   |   4   |   3   |30 6   |");
-//        System.out.println("|                                       |");
-//        System.out.println("|   -   +   -   +   -   +   -   +   -   |");
-//        System.out.println("|   19                                  |");
-//        System.out.println("|   7   |20 1   |24 4   |31 7   |       |");
-//        System.out.println("|                                       |");
-//        System.out.println("|   -   +   -   +   -   +   -   +   -   |");
-//        System.out.println("|   23      24      33                  |");
-//        System.out.println("|   4   |   4   |   9   |       |       |");
-//        System.out.println("|                                       |");
-//        System.out.println("|   -   +   -   +-------+   -   +   -   |");
-//        System.out.println("|   30      27  |       |               |");
-//        System.out.println("|   7   |   3   |   1   |       |       |");
-//        System.out.println("|               |       |               |");
-//        System.out.println("+-------+-------+-------+-------+-------+");
     }
 
-    public void print() {
-        // TODO: Print the matrix using MatrixPrinter!
+    public Matrix getMatrix() {
+        return matrix;
     }
 
     public Collection<Path> findShortestPaths(Coordinate startCoordinate, Coordinate endCoordinate) {

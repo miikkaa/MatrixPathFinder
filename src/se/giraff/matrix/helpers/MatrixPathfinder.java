@@ -5,10 +5,7 @@ import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.MatrixElementWithPath;
 import se.giraff.matrix.primitives.Path;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MatrixPathfinder {
@@ -23,19 +20,25 @@ public class MatrixPathfinder {
         this.to = to;
     }
 
+    /**
+     * Finds shortest paths between two coordinates in a given matrix.
+     *
+     * @return Shortest paths found for the current Pathfinder instance
+     */
     public Collection<Path> findPaths() {
-        Matrix<MatrixElementWithPath> helperMatrix = getMatrixWithPaths();
+        Matrix<MatrixElementWithPath> helperMatrix = createMatrixWithPaths();
         MatrixElementWithPath head = helperMatrix.getElementAt(from);
         MatrixElementWithPath tail = helperMatrix.getElementAt(to);
 
-        head.setOpeningPath();
+        head.markAsInitPathElement();
 
-        Set<MatrixElementWithPath> elementsWithPaths = new HashSet<>();
-        elementsWithPaths.add(head);
+        // Elements to visit
+        Set<MatrixElementWithPath> queue = new HashSet<>();
+        queue.add(head);
 
         while (!tail.isVisited()) {
-            // Next element to visit is the one having the lowest interim weight.
-            MatrixElementWithPath currentElement = elementsWithPaths.stream()
+            // Next element to visit is the one having the lowest interim weigh
+            MatrixElementWithPath currentElement = queue.stream()
                     .min(Comparator.comparingInt(MatrixElementWithPath::getInterimWeight))
                     .orElseThrow(() -> new RuntimeException("Could not find the next element to visit!"));
 
@@ -44,26 +47,29 @@ public class MatrixPathfinder {
                     .collect(Collectors.toSet());
 
             unvisitedNeighbours.forEach(neighbour -> {
-                int result = compareWeightedDistance(neighbour, currentElement);
+                int result = compareWeightedElements(neighbour, currentElement);
 
+                // New interim weight (indicating a "shorter" distance) is found, take the neighbour's paths
                 if (result > 0) {
                     neighbour.setPaths(currentElement);
 
+                // Same interim weight is found, converge the element's and the neighbour's paths
                 } else if (result == 0) {
                     neighbour.addToPaths(currentElement);
                 }
 
-                elementsWithPaths.add(neighbour);
+                queue.add(neighbour);
             });
 
+            // Mark as visited when the adjacent elements have been visited
             currentElement.setVisited();
-            elementsWithPaths.remove(currentElement);
+            queue.remove(currentElement);
         }
 
         return tail.getPaths();
     }
 
-    private Matrix<MatrixElementWithPath> getMatrixWithPaths() {
+    private Matrix<MatrixElementWithPath> createMatrixWithPaths() {
         int size = originalMatrix.getSize();
         MatrixElementWithPath[][] interimMatrix = new MatrixElementWithPath[size][size];
 
@@ -79,7 +85,17 @@ public class MatrixPathfinder {
         return new Matrix<>(interimMatrix);
     }
 
-    private static int compareWeightedDistance(MatrixElementWithPath target, MatrixElementWithPath source) {
+    /**
+     * Compares the current interim weight of the target element with a new calculated interim weight (source -> target).
+     *
+     * @param target The element to check the interim weight of
+     * @param source The element to
+     * @return Return an numeric value that indicates whether the current interim weight is:
+     *  less than the new weight (returns -1),
+     *  greater than the new weight (returns 1)
+     *  equal the new weight (returns 0).
+     */
+    private static int compareWeightedElements(MatrixElementWithPath target, MatrixElementWithPath source) {
         int currentWeight = target.getInterimWeight();
         int newWeight = source.getInterimWeight() + target.getWeight();
 
@@ -91,9 +107,17 @@ public class MatrixPathfinder {
         return 0;
     }
 
-    private static Set<MatrixElementWithPath> getNeighbours(Matrix<MatrixElementWithPath> matrix, MatrixElementWithPath current) {
+    /**
+     * Given a matrix, finds the neighbours for a specified matrix element.
+     * A neighbour is a node directly to the left or right, or above or below a target element.
+     *
+     * @param matrix A matrix to perform the search in
+     * @param target A matrix element to find the neighbours for
+     * @return A collection of matrix elements adjacent to the provided target
+     */
+    private static Set<MatrixElementWithPath> getNeighbours(Matrix<MatrixElementWithPath> matrix, MatrixElementWithPath target) {
         Set<MatrixElementWithPath> neighbours = new HashSet<>();
-        Coordinate coordinate = current.getCoordinate();
+        Coordinate coordinate = target.getCoordinate();
 
         // Left
         if (coordinate.getX() > 0) {
@@ -156,23 +180,23 @@ public class MatrixPathfinder {
 
         private void validateParameters() {
             if (matrix == null) {
-                throw new MatrixBuilderValidationError("<matrix> is a mandatory parameter!");
+                throw new MatrixBuilderValidationException("<matrix> is a mandatory parameter!");
             }
 
             if (from == null) {
-                throw new MatrixBuilderValidationError("<from> is a mandatory parameter!");
+                throw new MatrixBuilderValidationException("<from> is a mandatory parameter!");
             }
 
             if (!matrix.hasElementAt(from)) {
-                throw new MatrixBuilderValidationError("<from> coordinate is out of bounds!");
+                throw new MatrixBuilderValidationException("<from> coordinate is out of bounds!");
             }
 
             if (to == null) {
-                throw new MatrixBuilderValidationError("<to> is a mandatory parameter!");
+                throw new MatrixBuilderValidationException("<to> is a mandatory parameter!");
             }
 
             if (!matrix.hasElementAt(to)) {
-                throw new MatrixBuilderValidationError("<to> coordinate is out of bounds!");
+                throw new MatrixBuilderValidationException("<to> coordinate is out of bounds!");
             }
         }
     }
