@@ -10,7 +10,6 @@ import static se.giraff.config.LabyrinthConfig.*;
 
 public class Main {
 
-
     public static void main(String[] args) {
         LabyrinthApp app = new LabyrinthApp(DEFAULT_MATRIX_SIZE);
         Collection<Path> paths = app.findShortestPaths(DEFAULT_START_COORDINATE, DEFAULT_END_COORDINATE);

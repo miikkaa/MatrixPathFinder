@@ -12,16 +12,13 @@ import static se.giraff.config.LabyrinthConfig.*;
 
 public class LabyrinthApp {
 
-    private int size;
-    private Matrix matrix;
+    private final Matrix matrix;
 
     public LabyrinthApp(int size) {
-        if (size < MIN_ALLOWED_MATRIX_SIZE) {
-            throw new RuntimeException(String.format("The provided size is below the minimum allowed size <%s>!", MIN_ALLOWED_MATRIX_SIZE));
-        }
+        assert size < MIN_ALLOWED_MATRIX_SIZE;
 
-        this.size = size;
-        this.matrix = MatrixFactory.createMatrixWithElements(this.size, DEFAULT_LOWEST_ELEMENT_WEIGHT, DEFAULT_HIGHEST_ELEMENT_WEIGHT);
+        // Creates a matrix and fills it with random elements in the given range
+        this.matrix = MatrixFactory.createMatrixWithElements(size, DEFAULT_LOWEST_ELEMENT_WEIGHT, DEFAULT_HIGHEST_ELEMENT_WEIGHT);
     }
 
     public Matrix getMatrix() {

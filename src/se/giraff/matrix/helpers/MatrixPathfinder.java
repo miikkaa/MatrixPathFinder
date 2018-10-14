@@ -72,6 +72,11 @@ public class MatrixPathfinder {
         return tail.getPaths();
     }
 
+    /**
+     * Creates a helper matrix that contains the interim weights of the elements and paths.
+     *
+     * @return A matrix
+     */
     private Matrix<MatrixElementWithPath> createMatrixWithPaths() {
         int size = originalMatrix.getSize();
         MatrixElementWithPath[][] interimMatrix = new MatrixElementWithPath[size][size];

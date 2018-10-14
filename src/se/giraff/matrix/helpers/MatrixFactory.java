@@ -8,49 +8,17 @@ import java.util.Random;
 
 public class MatrixFactory {
 
-    public static Matrix createMatrixWithElements(int size, MatrixElement[][] elements) {
-        return new Matrix<>(elements);
-    }
-
+    /**
+     * Builds a matrix of a given size and fills it with elements within the provided weight range.
+     *
+     * @param size Matrix size
+     * @param minWeight The lowest weight
+     * @param maxWeight The highest weight
+     * @return A matrix filled with random elements
+     */
     public static Matrix createMatrixWithElements(int size, int minWeight, int maxWeight) {
         MatrixElement[][] matrixElements = generateMatrixElements(size, minWeight, maxWeight);
-        MatrixElement[][] matrixElements2 = new MatrixElement[][]{
-                new MatrixElement[]{
-                        new MatrixElement(1),
-                        new MatrixElement(3),
-                        new MatrixElement(2),
-                        new MatrixElement(5),
-                        new MatrixElement(9),
-                },
-                new MatrixElement[]{
-                        new MatrixElement(6),
-                        new MatrixElement(5),
-                        new MatrixElement(1),
-                        new MatrixElement(3),
-                        new MatrixElement(3),
-                },
-                new MatrixElement[]{
-                        new MatrixElement(4),
-                        new MatrixElement(2),
-                        new MatrixElement(1),
-                        new MatrixElement(4),
-                        new MatrixElement(5),
-                },
-                new MatrixElement[]{
-                        new MatrixElement(8),
-                        new MatrixElement(2),
-                        new MatrixElement(8),
-                        new MatrixElement(4),
-                        new MatrixElement(1),
-                },
-                new MatrixElement[]{
-                        new MatrixElement(7),
-                        new MatrixElement(1),
-                        new MatrixElement(2),
-                        new MatrixElement(2),
-                        new MatrixElement(3),
-                },
-        };
+
         return new Matrix<>(matrixElements);
     }
 
