@@ -38,7 +38,7 @@ public class Matrix<T extends MatrixElement> {
     }
 
     private boolean isValidIndex(int index) {
-        return index >= 0 || index < size;
+        return index >= 0 && index < size;
     }
 
     private void assertSquareMatrix(T[][] elements) {
