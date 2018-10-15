@@ -1,6 +1,7 @@
 package se.giraff.matrix.helpers;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static se.giraff.matrix.helpers.MatrixTestHelper.DEFAULT_MATRIX_SHORTEST_DISTANCE;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.MatrixElement;
+import se.giraff.matrix.primitives.MatrixTrace;
 import se.giraff.matrix.primitives.Path;
 
 class MatrixPrinterTest {
@@ -23,7 +25,7 @@ class MatrixPrinterTest {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         BufferedOutputStream os = new BufferedOutputStream(out);
-        MatrixPrinter.print(matrix, paths, new PrintStream(os));
+        MatrixPrinter.print(matrix, new MatrixTrace(DEFAULT_MATRIX_SHORTEST_DISTANCE, paths), new PrintStream(os));
 
         String result = new String(out.toByteArray());
 

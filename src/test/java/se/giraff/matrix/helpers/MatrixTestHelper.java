@@ -72,4 +72,6 @@ class MatrixTestHelper {
                     .addCoordinate(Coordinate.from(4, 4))
     ));
 
+    final static int DEFAULT_MATRIX_SHORTEST_DISTANCE = 16;
+
 }

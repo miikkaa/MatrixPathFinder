@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.MatrixElement;
+import se.giraff.matrix.primitives.MatrixTrace;
 import se.giraff.matrix.primitives.Path;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,14 +86,15 @@ class MatrixPathfinderTest {
         final Matrix<MatrixElement> testMatrix = new Matrix<>(MatrixTestHelper.DEFAULT_MATRIX);
         final Coordinate testFromCoordinate = Coordinate.from(0, 0);
         final Coordinate testToCoordinate = Coordinate.from(testMatrix.getSize() - 1, testMatrix.getSize() - 1);
-        Collection<Path> paths = MatrixPathfinder.Builder.create()
+        MatrixTrace matrixTrace = MatrixPathfinder.Builder.create()
                 .matrix(testMatrix)
                 .from(testFromCoordinate)
                 .to(testToCoordinate)
                 .build()
                 .findPaths();
 
-        assertContainsInAnyOrder(MatrixTestHelper.DEFAULT_MATRIX_PATHS, paths);
+        assertEquals(MatrixTestHelper.DEFAULT_MATRIX_SHORTEST_DISTANCE, matrixTrace.getDistance());
+        assertContainsInAnyOrder(MatrixTestHelper.DEFAULT_MATRIX_PATHS, matrixTrace.getPaths());
     }
 
     private void assertContainsInAnyOrder(Collection<?> actual, Collection<?> expected) {

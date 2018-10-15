@@ -4,12 +4,14 @@ import static se.giraff.config.LabyrinthConfig.DEFAULT_HIGHEST_ELEMENT_WEIGHT;
 import static se.giraff.config.LabyrinthConfig.DEFAULT_LOWEST_ELEMENT_WEIGHT;
 import static se.giraff.config.LabyrinthConfig.DEFAULT_MATRIX_SIZE;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 
 import se.giraff.matrix.helpers.MatrixFactory;
 import se.giraff.matrix.helpers.MatrixPathfinder;
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
+import se.giraff.matrix.primitives.MatrixTrace;
 import se.giraff.matrix.primitives.Path;
 
 public class LabyrinthApp {
@@ -25,7 +27,7 @@ public class LabyrinthApp {
         return matrix;
     }
 
-    public Collection<Path> findShortestPaths(Coordinate startCoordinate, Coordinate endCoordinate) {
+    public MatrixTrace findShortestPaths(Coordinate startCoordinate, Coordinate endCoordinate) {
         MatrixPathfinder pathfinder = MatrixPathfinder.Builder.create()
                 .matrix(matrix)
                 .from(startCoordinate)

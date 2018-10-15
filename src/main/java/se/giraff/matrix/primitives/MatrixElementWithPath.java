@@ -11,8 +11,6 @@ public class MatrixElementWithPath extends MatrixElement {
      */
     private Set<Path> paths;
 
-    private boolean visited;
-
     /**
      * Distance represents an accumulated weight of the elements in a node's paths (i.e the length of a path).
      * Initial distance of a node is "infinite", indicating it has not been visited.
@@ -26,14 +24,6 @@ public class MatrixElementWithPath extends MatrixElement {
 
     public Coordinate getCoordinate() {
         return coordinate;
-    }
-
-    public boolean isVisited() {
-        return visited;
-    }
-
-    public void setVisited() {
-        visited = true;
     }
 
     public int getDistance() {

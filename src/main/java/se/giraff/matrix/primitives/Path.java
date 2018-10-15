@@ -27,7 +27,7 @@ public class Path {
         return coordinates.contains(coordinate);
     }
 
-    public Path lengthen(Coordinate coordinate) {
+    public Path cloneAndLengthen(Coordinate coordinate) {
         return new Path(this).addCoordinate(coordinate);
     }
 

@@ -56,6 +56,8 @@ class MatrixPathfinderUtils {
 
     /**
      * Sets an initial path on the starting element that all subsequent paths will be built upon.
+     *
+     * @param element Element to initialize
      */
     static void setInitialPath(MatrixElementWithPath element) {
         Set<Path> paths = new HashSet<>();
@@ -93,12 +95,13 @@ class MatrixPathfinderUtils {
     /**
      * Copies a collection of paths and lengthens each path with the current element.
      *
-     * @param paths Paths to copy
+     * @param paths      Paths to copy
+     * @param coordinate A coordinate to lengthen the paths with
      * @return A collection of paths that include the current coordinate
      */
     private static Set<Path> copyAndLengthenPaths(Collection<Path> paths, Coordinate coordinate) {
         return paths.stream()
-                .map(path -> path.lengthen(coordinate))
+                .map(path -> path.cloneAndLengthen(coordinate))
                 .collect(Collectors.toSet());
     }
 }

@@ -1,12 +1,15 @@
 package se.giraff.matrix.helpers;
 
 import java.io.PrintStream;
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
+import se.giraff.matrix.primitives.MatrixTrace;
 import se.giraff.matrix.primitives.Path;
 
 public class MatrixPrinter {
@@ -32,11 +35,11 @@ public class MatrixPrinter {
     private static final int CELL_WIDTH = 7;
 
     private final Matrix matrix;
-    private final Collection<Path> paths;
+    private final MatrixTrace matrixTrace;
     private final Printer printer;
 
-    public static void print(Matrix matrix, Collection<Path> paths, PrintStream printStream) {
-        MatrixPrinter matrixPrinter = new MatrixPrinter(matrix, paths, printStream);
+    public static void print(Matrix matrix, MatrixTrace matrixTrace, PrintStream printStream) {
+        MatrixPrinter matrixPrinter = new MatrixPrinter(matrix, matrixTrace, printStream);
         matrixPrinter.printMatrixWithPaths();
         printStream.flush();
     }
@@ -47,9 +50,9 @@ public class MatrixPrinter {
         return String.join("", stringArray);
     }
 
-    private MatrixPrinter(Matrix matrix, Collection<Path> paths, PrintStream printStream) {
+    private MatrixPrinter(Matrix matrix, MatrixTrace matrixTrace, PrintStream printStream) {
         this.matrix = matrix;
-        this.paths = paths;
+        this.matrixTrace = matrixTrace;
         this.printer = new Printer(printStream);
     }
 
@@ -57,8 +60,10 @@ public class MatrixPrinter {
         printer.print("Original matrix:");
         printer.print(matrixToString());
 
-        if (paths != null && !paths.isEmpty()) {
-            printer.print("Found " + paths.size() + " path" + (paths.size() > 1 ? "s" : "") + ":");
+        if (matrixTrace.getPaths() != null && !matrixTrace.getPaths().isEmpty()) {
+            Collection<Path> paths = matrixTrace.getPaths();
+
+            printer.print("Found <" + paths.size() + " path" + (paths.size() > 1 ? "s" : "") + "> with distance <" + matrixTrace.getDistance() + ">:");
             paths.forEach(p -> printer.print(p.toString()));
 
             final String pathSeparator = multiply("=", matrix.getSize() * CELL_WIDTH);

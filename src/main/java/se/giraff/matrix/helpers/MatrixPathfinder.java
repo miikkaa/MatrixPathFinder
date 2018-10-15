@@ -1,5 +1,6 @@
 package se.giraff.matrix.helpers;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.MatrixElementWithPath;
+import se.giraff.matrix.primitives.MatrixTrace;
 import se.giraff.matrix.primitives.Path;
 
 public class MatrixPathfinder {
@@ -28,29 +30,30 @@ public class MatrixPathfinder {
      *
      * @return Shortest paths found for the current Pathfinder instance
      */
-    public Collection<Path> findPaths() {
+    public MatrixTrace findPaths() {
         Matrix<MatrixElementWithPath> helperMatrix = createHelperMatrix();
         MatrixElementWithPath head = helperMatrix.getElementAt(from);
         MatrixElementWithPath tail = helperMatrix.getElementAt(to);
 
-        // Elements to visit
-        Set<MatrixElementWithPath> queue = new HashSet<>();
-        queue.add(head);
+        Set<MatrixElementWithPath> queuedElements = new HashSet<>();
+        queuedElements.add(head);
 
-        while (!tail.isVisited()) {
-            // Next element to visit is the one having the shortest distance
-            MatrixElementWithPath fromElement = queue.stream()
+        Set<MatrixElementWithPath> visitedElements = new HashSet<>();
+
+        while (true) {
+            // Next element to visit is a queued element with the shortest distance from the start
+            MatrixElementWithPath fromElement = queuedElements.stream()
                     .min(Comparator.comparingInt(MatrixElementWithPath::getDistance))
                     .orElseThrow(() -> new RuntimeException("Could not find the next element to visit!"));
 
             Collection<MatrixElementWithPath> unvisitedNeighbours = getNeighbours(helperMatrix, fromElement).stream()
-                    .filter(element -> !element.isVisited())
+                    .filter(element -> !visitedElements.contains(element))
                     .collect(Collectors.toSet());
 
             unvisitedNeighbours.forEach(toElement -> {
                 int result = MatrixPathfinderUtils.compareDistance(fromElement, toElement);
 
-                // Shorter distance is found, take the neighbour's paths
+                // Shorter distance is found, take the element's paths
                 if (result > 0) {
                     MatrixPathfinderUtils.updatePaths(fromElement, toElement);
 
@@ -59,15 +62,22 @@ public class MatrixPathfinder {
                     MatrixPathfinderUtils.joinPaths(fromElement, toElement);
                 }
 
-                queue.add(toElement);
+                queuedElements.add(toElement);
             });
 
-            // Mark as visited when the adjacent elements have been visited
-            fromElement.setVisited();
-            queue.remove(fromElement);
+            // No more visits to the element when all of the adjacent elements have been visited once
+            visitedElements.add(fromElement);
+            queuedElements.remove(fromElement);
+
+            if (fromElement.equals(tail)) {
+                break;
+            }
         }
 
-        return tail.getPaths();
+        // Distance is the edges, not the nodes
+        final int distanceExcludingEdges = tail.getDistance() - head.getWeight() - tail.getWeight();
+
+        return new MatrixTrace(distanceExcludingEdges, tail.getPaths());
     }
 
     private Matrix<MatrixElementWithPath> createHelperMatrix() {
