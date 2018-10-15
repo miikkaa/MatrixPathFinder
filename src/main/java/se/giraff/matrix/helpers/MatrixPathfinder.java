@@ -127,27 +127,23 @@ public class MatrixPathfinder {
         Set<MatrixElementWithPath> neighbours = new HashSet<>();
         Coordinate coordinate = target.getCoordinate();
 
-        // Left
-        if (coordinate.getX() > 0) {
-            Coordinate left = Coordinate.from(coordinate.getX() - 1, coordinate.getY());
+        Coordinate left = Coordinate.leftOf(coordinate);
+        if (matrix.hasElementAt(left)) {
             neighbours.add(matrix.getElementAt(left));
         }
 
-        // Right
-        if (coordinate.getX() < matrix.getSize() - 1) {
-            Coordinate right = Coordinate.from(coordinate.getX() + 1, coordinate.getY());
+        Coordinate right = Coordinate.rightOf(coordinate);
+        if (matrix.hasElementAt(right)) {
             neighbours.add(matrix.getElementAt(right));
         }
 
-        // Above
-        if (coordinate.getY() > 0) {
-            Coordinate above = Coordinate.from(coordinate.getX(), coordinate.getY() - 1);
+        Coordinate above = Coordinate.aboveOf(coordinate);
+        if (matrix.hasElementAt(above)) {
             neighbours.add(matrix.getElementAt(above));
         }
 
-        // Below
-        if (coordinate.getY() < matrix.getSize() - 1) {
-            Coordinate below = Coordinate.from(coordinate.getX(), coordinate.getY() + 1);
+        Coordinate below = Coordinate.belowOf(coordinate);
+        if (matrix.hasElementAt(below)) {
             neighbours.add(matrix.getElementAt(below));
         }
 

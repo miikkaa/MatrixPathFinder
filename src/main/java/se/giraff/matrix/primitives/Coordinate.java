@@ -8,10 +8,23 @@ public class Coordinate {
     private int y;
 
     public static Coordinate from(int x, int y) {
-        assert x >= 0;
-        assert y >= 0;
-
         return new Coordinate(x, y);
+    }
+
+    public static Coordinate leftOf(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX() - 1, coordinate.getY());
+    }
+
+    public static Coordinate rightOf(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX() + 1, coordinate.getY());
+    }
+
+    public static Coordinate aboveOf(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX(), coordinate.getY() - 1);
+    }
+
+    public static Coordinate belowOf(Coordinate coordinate) {
+        return new Coordinate(coordinate.getX(), coordinate.getY() + 1);
     }
 
     private Coordinate(int x, int y) {
