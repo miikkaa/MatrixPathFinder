@@ -1,13 +1,13 @@
 package se.giraff.matrix.primitives;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Path {
 
-    private Collection<Coordinate> coordinates;
+    private Set<Coordinate> coordinates;
 
     public Path(Coordinate head) {
         this.coordinates = new LinkedHashSet<>();
@@ -27,8 +27,8 @@ public class Path {
         return coordinates.contains(coordinate);
     }
 
-    public Path copy() {
-        return new Path(this);
+    public Path lengthen(Coordinate coordinate) {
+        return new Path(this).addCoordinate(coordinate);
     }
 
     public String toString() {
@@ -39,10 +39,16 @@ public class Path {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Path path = (Path) o;
-        if (Objects.equals(coordinates, path.coordinates)) return true;
+        if (Objects.equals(coordinates, path.coordinates)) {
+            return true;
+        }
         return path.coordinates.containsAll(coordinates);
     }
 

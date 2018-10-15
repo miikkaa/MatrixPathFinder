@@ -1,16 +1,16 @@
 package se.giraff.matrix.helpers;
 
-import se.giraff.matrix.primitives.Coordinate;
-import se.giraff.matrix.primitives.MatrixElement;
-import se.giraff.matrix.primitives.Path;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-public class MatrixTestHelper {
+import se.giraff.matrix.primitives.Coordinate;
+import se.giraff.matrix.primitives.MatrixElement;
+import se.giraff.matrix.primitives.Path;
 
-    public final static MatrixElement[][] DEFAULT_MATRIX = new MatrixElement[][]{
+class MatrixTestHelper {
+
+    final static MatrixElement[][] DEFAULT_MATRIX = new MatrixElement[][]{
             new MatrixElement[]{
                     new MatrixElement(1),
                     new MatrixElement(3),
@@ -48,7 +48,7 @@ public class MatrixTestHelper {
             },
     };
 
-    public final static Collection<Path> DEFAULT_MATRIX_PATHS = new ArrayList<>(Arrays.asList(
+    final static Collection<Path> DEFAULT_MATRIX_PATHS = new ArrayList<>(Arrays.asList(
             new Path(Coordinate.from(0, 0))
                     .addCoordinate(Coordinate.from(0, 1))
                     .addCoordinate(Coordinate.from(0, 2))

@@ -1,15 +1,15 @@
 package se.giraff.matrix.helpers;
 
-import se.giraff.matrix.primitives.Coordinate;
-import se.giraff.matrix.primitives.Matrix;
-import se.giraff.matrix.primitives.MatrixElementWithPath;
-import se.giraff.matrix.primitives.Path;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import se.giraff.matrix.primitives.Coordinate;
+import se.giraff.matrix.primitives.Matrix;
+import se.giraff.matrix.primitives.MatrixElementWithPath;
+import se.giraff.matrix.primitives.Path;
 
 public class MatrixPathfinder {
 
@@ -29,90 +29,64 @@ public class MatrixPathfinder {
      * @return Shortest paths found for the current Pathfinder instance
      */
     public Collection<Path> findPaths() {
-        Matrix<MatrixElementWithPath> helperMatrix = createMatrixWithPaths();
+        Matrix<MatrixElementWithPath> helperMatrix = createHelperMatrix();
         MatrixElementWithPath head = helperMatrix.getElementAt(from);
         MatrixElementWithPath tail = helperMatrix.getElementAt(to);
-
-        head.markAsInitPathElement();
 
         // Elements to visit
         Set<MatrixElementWithPath> queue = new HashSet<>();
         queue.add(head);
 
         while (!tail.isVisited()) {
-            // Next element to visit is the one having the lowest interim weigh
-            MatrixElementWithPath currentElement = queue.stream()
-                    .min(Comparator.comparingInt(MatrixElementWithPath::getInterimWeight))
+            // Next element to visit is the one having the shortest distance
+            MatrixElementWithPath fromElement = queue.stream()
+                    .min(Comparator.comparingInt(MatrixElementWithPath::getDistance))
                     .orElseThrow(() -> new RuntimeException("Could not find the next element to visit!"));
 
-            Collection<MatrixElementWithPath> unvisitedNeighbours = getNeighbours(helperMatrix, currentElement).stream()
+            Collection<MatrixElementWithPath> unvisitedNeighbours = getNeighbours(helperMatrix, fromElement).stream()
                     .filter(element -> !element.isVisited())
                     .collect(Collectors.toSet());
 
-            unvisitedNeighbours.forEach(neighbour -> {
-                int result = compareWeightedElements(neighbour, currentElement);
+            unvisitedNeighbours.forEach(toElement -> {
+                int result = MatrixPathfinderUtils.compareDistance(fromElement, toElement);
 
-                // New interim weight (indicating a "shorter" distance) is found, take the neighbour's paths
+                // Shorter distance is found, take the neighbour's paths
                 if (result > 0) {
-                    neighbour.setPaths(currentElement);
+                    MatrixPathfinderUtils.updatePaths(fromElement, toElement);
 
-                // Same interim weight is found, converge the element's and the neighbour's paths
+                // Same distance is found, converge the element's and the neighbour's paths
                 } else if (result == 0) {
-                    neighbour.addToPaths(currentElement);
+                    MatrixPathfinderUtils.joinPaths(fromElement, toElement);
                 }
 
-                queue.add(neighbour);
+                queue.add(toElement);
             });
 
             // Mark as visited when the adjacent elements have been visited
-            currentElement.setVisited();
-            queue.remove(currentElement);
+            fromElement.setVisited();
+            queue.remove(fromElement);
         }
 
         return tail.getPaths();
     }
 
-    /**
-     * Creates a helper matrix that contains the interim weights of the elements and paths.
-     *
-     * @return A matrix
-     */
-    private Matrix<MatrixElementWithPath> createMatrixWithPaths() {
+    private Matrix<MatrixElementWithPath> createHelperMatrix() {
         int size = originalMatrix.getSize();
-        MatrixElementWithPath[][] interimMatrix = new MatrixElementWithPath[size][size];
+        MatrixElementWithPath[][] matrixElements = new MatrixElementWithPath[size][size];
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Coordinate coordinate = Coordinate.from(i, j);
 
-                MatrixElementWithPath interimElement = new MatrixElementWithPath(originalMatrix.getElementAt(coordinate), coordinate);
-                interimMatrix[i][j] = interimElement;
+                matrixElements[i][j] = new MatrixElementWithPath(originalMatrix.getElementAt(coordinate), coordinate);
+
+                if (coordinate.equals(from)) {
+                    MatrixPathfinderUtils.setInitialPath(matrixElements[i][j]);
+                }
             }
         }
 
-        return new Matrix<>(interimMatrix);
-    }
-
-    /**
-     * Compares the current interim weight of the target element with a new calculated interim weight (source -> target).
-     *
-     * @param target The element to check the interim weight of
-     * @param source The element to
-     * @return Return an numeric value that indicates whether the current interim weight is:
-     *  less than the new weight (returns -1),
-     *  greater than the new weight (returns 1)
-     *  equal the new weight (returns 0).
-     */
-    private static int compareWeightedElements(MatrixElementWithPath target, MatrixElementWithPath source) {
-        int currentWeight = target.getInterimWeight();
-        int newWeight = source.getInterimWeight() + target.getWeight();
-
-        if (currentWeight < newWeight) {
-            return -1;
-        } else if (currentWeight > newWeight) {
-            return 1;
-        }
-        return 0;
+        return new Matrix<>(matrixElements);
     }
 
     /**
@@ -156,7 +130,8 @@ public class MatrixPathfinder {
         private Coordinate from;
         private Coordinate to;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public static Builder create() {
             return new Builder();

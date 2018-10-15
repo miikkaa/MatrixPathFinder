@@ -1,13 +1,17 @@
 package se.giraff.matrix.helpers;
 
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
+
 import se.giraff.matrix.primitives.Coordinate;
 import se.giraff.matrix.primitives.Matrix;
 import se.giraff.matrix.primitives.Path;
 
-import java.util.Collection;
-import java.util.Optional;
-
 public class MatrixPrinter {
+
+    public static final PrintStream DEFAULT_PRINT_STREAM = System.out;
 
     // = ANSI RED
     private static final String HIGHLIGHT_COLOR = "\u001B[31m";
@@ -25,31 +29,50 @@ public class MatrixPrinter {
             NUM_HIGHLIGHT_LEFT + "%s" + NUM_HIGHLIGHT_RIGHT +
             HIGHLIGHT_RESET;
 
+    private static final int CELL_WIDTH = 7;
+
     private final Matrix matrix;
     private final Collection<Path> paths;
+    private final Printer printer;
 
-    public static void print(Matrix matrix, Collection<Path> paths) {
-        MatrixPrinter matrixPrinter = new MatrixPrinter(matrix, paths);
-        matrixPrinter.print();
+    public static void print(Matrix matrix, Collection<Path> paths, PrintStream printStream) {
+        MatrixPrinter matrixPrinter = new MatrixPrinter(matrix, paths, printStream);
+        matrixPrinter.printMatrixWithPaths();
+        printStream.flush();
     }
 
-    private MatrixPrinter(Matrix matrix, Collection<Path> paths) {
+    private static String multiply(String input, int times) {
+        String[] stringArray = new String[times];
+        Arrays.fill(stringArray, input);
+        return String.join("", stringArray);
+    }
+
+    private MatrixPrinter(Matrix matrix, Collection<Path> paths, PrintStream printStream) {
         this.matrix = matrix;
         this.paths = paths;
+        this.printer = new Printer(printStream);
     }
 
-    private void print() {
-        System.out.println("Matrix:");
-        System.out.println(matrixToString());
+    private void printMatrixWithPaths() {
+        printer.print("Original matrix:");
+        printer.print(matrixToString());
 
-        System.out.println("Found " + paths.size() + " path" + (paths.size() > 1 ? "s" : "") + ":");
-        paths.forEach(System.out::println);
+        if (paths != null && !paths.isEmpty()) {
+            printer.print("Found " + paths.size() + " path" + (paths.size() > 1 ? "s" : "") + ":");
+            paths.forEach(p -> printer.print(p.toString()));
 
-        System.out.println("Matrix with the shortest path highlighted:");
-        paths.forEach(path -> {
-            System.out.println("===================================");
-            System.out.println(matrixToString(path));
-        });
+            final String pathSeparator = multiply("=", matrix.getSize() * CELL_WIDTH);
+
+            printer.newline();
+            printer.newline();
+            printer.print("Matrix with the shortest path highlighted:");
+
+            paths.forEach(path -> {
+                printer.newline();
+                printer.print(matrixToString(path));
+                printer.print(pathSeparator);
+            });
+        }
     }
 
     private String matrixToString() {
@@ -71,8 +94,7 @@ public class MatrixPrinter {
             for (int j = 0; j < size; j++) {
                 Coordinate coordinate = Coordinate.from(i, j);
                 int weight = matrix.getElementAt(coordinate).getWeight();
-                boolean highlighted = path.isPresent() &&
-                        path.get().contains(coordinate);
+                boolean highlighted = path.isPresent() && path.get().contains(coordinate);
 
                 sb.append(printElement(weight, highlighted));
             }
@@ -84,7 +106,7 @@ public class MatrixPrinter {
         return sb.toString();
     }
 
-    private String printElement(int element, boolean highlighted) {
+    static String printElement(int element, boolean highlighted) {
         String template = highlighted
                 ? ELEMENT_HIGHLIGHTED_TPL
                 : ELEMENT_TPL;
@@ -92,5 +114,22 @@ public class MatrixPrinter {
         return NUM_ROW_PADDING
                 + String.format(template, element)
                 + NUM_ROW_PADDING;
+    }
+
+    private final class Printer {
+
+        private final PrintStream printStream;
+
+        private Printer(PrintStream printStream) {
+            this.printStream = printStream;
+        }
+
+        private void print(String string) {
+            printStream.println(string);
+        }
+
+        private void newline() {
+            printStream.println();
+        }
     }
 }
