@@ -68,10 +68,6 @@ public class MatrixPrinter {
 
             final String pathSeparator = multiply("=", matrix.getSize() * CELL_WIDTH);
 
-            printer.newline();
-            printer.newline();
-            printer.print("Matrix with the shortest path highlighted:");
-
             paths.forEach(path -> {
                 printer.newline();
                 printer.print(matrixToString(path));
